@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
+
+# MLflow
+mlruns/
+
+# Model Artifacts
+models/*.pt
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
