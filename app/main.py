@@ -2,8 +2,16 @@ from fastapi import FastAPI, UploadFile, File
 import torch
 from PIL import Image
 from torchvision import transforms
+import logging
 
 from src.model import CatDogCNN
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+
+request_count = 0
 
 app = FastAPI()
 
@@ -37,8 +45,20 @@ def model_info():
     }
 
 
+@app.get("/metrics")
+def metrics():
+    return {
+        "request_count": request_count
+    }
+
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+
+    global request_count
+    request_count += 1
+
+    logging.info("Prediction request received")
 
     image = Image.open(file.file).convert("RGB")
 
@@ -47,6 +67,7 @@ async def predict(file: UploadFile = File(...)):
     image = image.unsqueeze(0)
 
     with torch.no_grad():
+
         output = model(image)
 
         probabilities = torch.softmax(output, dim=1)
@@ -54,6 +75,8 @@ async def predict(file: UploadFile = File(...)):
         confidence, predicted = torch.max(probabilities, 1)
 
     label = "Cat" if predicted.item() == 0 else "Dog"
+
+    logging.info(f"Prediction result: {label}")
 
     return {
         "prediction": label,
