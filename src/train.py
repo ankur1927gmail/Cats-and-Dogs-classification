@@ -1,11 +1,10 @@
 import mlflow
-import torch
 
-print("Environment ready")
-print("Torch Version:", torch.__version__)
-
+mlflow.set_tracking_uri("http://127.0.0.1:5002")
 mlflow.set_experiment("CatsDogsClassification")
 
-with mlflow.start_run():
-    mlflow.log_param("test_run", True)
-    print("MLflow test run created successfully")
+with mlflow.start_run(run_name="test_training_run"):
+    mlflow.log_param("epochs", 2)
+    mlflow.log_metric("accuracy", 0.90)
+
+print("MLflow logging successful")
